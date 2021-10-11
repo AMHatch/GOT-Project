@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-uWxY/CJNBR+1zjPWmfnSnVxwRheevXITnMqoEIeG1LJrdI0GlVs/9cVSyPYXdcSF" crossorigin="anonymous">
+    <title>Game of Thrones</title>
+<style>
+    .wide{
+        width: 100%;
+    }
+    .body{
+        margin: 0px;
+        padding: 0px;
+        width: 100vw;
+        
+    }
+    .height{
+        height: 100vh;
+    }
+    .hi{
+        height:100px;
+    }
+</style>
+</head>
+    <body class="body container-fluid">
+        
+                <div class="row wide hi">
+                    <div class="col-12 display-3 d-flex justify-content-center align-items-center ">
+                        Game of Thrones
+                    </div>
+                </div>
+            
+    
+        <main class="position-relative">
+            <div class="d-flex ">
+                <div class="row wide mt-20">
+                    <div class="col-4 height">
+                        
+                    </div>
+                        <div class="col-4 d-flex justify-content-center">
+                        
+                        <div class="d-flex flex-column justify-content-center" id="charList">
+
+                            
+                        </div>
+                    </div>
+                        <div class="d-flex flex-column justify-content-center" id="charList">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </main>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script>
+
+
+        
+
+let fetchArr =[]
+let url = ''
+let charArr = []
+let fetchHouseArr =[]
+    let HouseUrl = ''
+    let houseArr = []
+$(() => {
+
+    
+for(let page = 1;page<45;page++){
+    url= fetch(`https://www.anapioficeandfire.com/api/characters?page=${page}&pageSize=50`)
+    fetchArr.push(url)
+    }
+    let promise = Promise.all(fetchArr)
+    promise.then((resultsArr) => {
+        return Promise.all(resultsArr.map(char => {
+            return char.json()
+        }))
+    })
+    .then((dataArr) => {
+            dataArr.forEach((char) => {
+                charArr = [...charArr,...char]
+            })
+            console.log(charArr);
+
+        })
+    .then(() => {
+for(let page = 1;page<10;page++){
+url= fetch(`https://www.anapioficeandfire.com/api/houses?page=${page}&pageSize=50`)
+fetchHouseArr.push(url)
+}
+let promise = Promise.all(fetchHouseArr)
+promise.then((resultsHouseArr) => {
+    return Promise.all(resultsHouseArr.map(house => {
+        return house.json()
+    }))
+})
+.then((dataArr) => {
+        dataArr.forEach((house) => {
+            houseArr = [...houseArr,...house]
+        })
+        console.log(houseArr);
+    //manipulate DOM
+
+    let charList = document.querySelector('#charList')
+    for(let index = 0; index < charArr.length; index++){
+        if(charArr[index]['name'] && charArr[index].name.length > 0){
+
+        let div = document.createElement('div')
+        let button = document.createElement('button')
+        let card = document.createElement('div')
+        card.setAttribute('class','card card-body')
+        
+        button.setAttribute('type','button')
+        button.setAttribute('class','btn btn-outline-secondary')
+        button.setAttribute('data-bs-target',`#${index}`)
+        button.setAttribute('data-bs-toggle',`collapse`)
+        button.setAttribute('aria-expanded',`collapse`)
+
+        let houseVar = charArr[index].allegiances
+
+        button.innerHTML = `<b>${charArr[index].name}</b>`
+        charList.appendChild(div);
+        div.appendChild(button)
+        
+        let houseDiv = document.createElement('div')
+               // houseDiv.setAttribute('class','collapse')
+                houseDiv.setAttribute('id',`${index}`)
+                div.appendChild(houseDiv)
+                houseDiv.appendChild(card)
+
+
+        for(house in houseVar){
+            let houseIndex = houseArr.find(x => x.url === houseVar[house] );
+            if(houseIndex && houseIndex['name']){
+                card.innerText += houseIndex.name
+                
+
+               // houseIndex.name
+                
+            }
+
+        }
+        }
+        
+        }
+
+
+    })
+})
+})
+
+</script>
+</body>
+</html>
